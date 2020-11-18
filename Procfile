@@ -1,1 +1,1 @@
-web: lab-proj
+web: awesomeProject
