@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"os"
+	"fmt"
 	_ "os"
 )
 
@@ -20,7 +20,12 @@ const (
 )
 func dbConnect() error {
 	var err error
-	db, err = sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err = sql.Open("postgres", fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
+		DbUser,
+		DbPassword,
+		"localhost",
+		"5432",
+		DbName))
 	if err != nil {
 		return err
 	}
