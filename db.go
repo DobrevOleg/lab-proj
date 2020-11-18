@@ -2,8 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"github.com/lib/pq"
-	"os"
+	"fmt"
 	_ "os"
 )
 
@@ -21,10 +20,12 @@ const (
 )
 func dbConnect() error {
 	var err error
-	url := os.Getenv("DATABASE_URL")
-	connection, _ := pq.ParseURL(url)
-	connection += " sslmode=require"
-	db, err = sql.Open("postgres", connection)
+	db, err = sql.Open("postgres", fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=require",
+		DbUser,
+		DbPassword,
+		"localhost",
+		"5432",
+		DbName))
 	if err != nil {
 		return err
 	}
