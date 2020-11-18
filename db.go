@@ -1,58 +1,101 @@
-package awesomeProject
+package main
 import (
 	"database/sql"
 	"fmt"
 	_ "os"
 )
 
-type Book struct{
+type CarShop struct{
 	Name string
 	Year string
-	Length string
+	Price string
+	Country string
+	AllCount string
 }
 const (
-	DB_USER = "postgres"
-	DB_PASSWORD = "postgres"
-	DB_NAME = "test"
+	DbUser     = "postgres"
+	DbPassword = "ashumqwe"
+	DbName     = "lab"
 )
 func dbConnect() error {
 	var err error
 	db, err = sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
-	DB_USER, DB_PASSWORD, DB_NAME))
+		DbUser, DbPassword, DbName))
 	if err != nil {
 		return err
 	}
-	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS books (book_name text,book_year text,book_length text)"); err != nil {
+	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS car_shop (car_name text, car_year text,car_price text, car_country text)"); err != nil {
 	return err
 }
 return nil
 }
-func dbAddBook(name, year, length string) error {
-	sqlstmt := "INSERT INTO books VALUES ($1, $2, $3)"
-	_, err := db.Exec(sqlstmt, name, year, length)
+func dbAddCar(name, year, price, country string) error {
+	sqlstmt := "INSERT INTO car_shop VALUES ($1, $2, $3, $4)"
+	_, err := db.Exec(sqlstmt, name, year, price, country)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func dbGetBooks() ([]Book, error) {
-	var books []Book
-	stmt, err := db.Prepare("SELECT book_name, book_year, book_length FROM books")
+func dbGetCars() ([]CarShop, error) {
+	var cars []CarShop
+	stmt, err := db.Prepare("SELECT car_name, car_year,car_price, car_country  FROM car_shop")
 	if err != nil {
-		return books, err
+		return cars, err
 	}
 	res, err := stmt.Query()
 	if err != nil {
-		return books, err
+		return cars, err
 	}
-	var tempBook Book
+	var tempCar CarShop
 	for res.Next() {
-		err = res.Scan(&tempBook.Name, &tempBook.Year, &tempBook.Length)
+		err = res.Scan(&tempCar.Name, &tempCar.Year, &tempCar.Price, &tempCar.Country)
 		if err != nil {
-			return books, err
+			return cars, err
 		}
-		books = append(books, tempBook)
+		cars = append(cars, tempCar)
 	}
-	return books, err
+	return cars, err
+}
+func getAllCount() (CarShop, error){
+	var car CarShop
+	stmt, err := db.Prepare("select count(*) num from car_shop")
+	if err != nil {
+		return car, err
+	}
+	res, err := stmt.Query()
+	if err != nil {
+		return car, err
+	}
+	var tempCar CarShop
+	for res.Next() {
+		err = res.Scan(&tempCar.AllCount)
+		if err != nil {
+			return car, err
+		}
+		car = tempCar
+	}
+	return car, err
+}
+
+func getCarsByMark(mark string) ([]CarShop, error) {
+	var cars []CarShop
+	stmt, err := db.Prepare("SELECT car_name, car_year,car_price, car_country  FROM car_shop WHERE car_name ='" + mark + "'")
+	if err != nil {
+		return cars, err
+	}
+	res, err := stmt.Query()
+	if err != nil {
+		return cars, err
+	}
+	var tempCar CarShop
+	for res.Next() {
+		err = res.Scan(&tempCar.Name, &tempCar.Year, &tempCar.Price, &tempCar.Country)
+		if err != nil {
+			return cars, err
+		}
+		cars = append(cars, tempCar)
+	}
+	return cars, err
 }
 
